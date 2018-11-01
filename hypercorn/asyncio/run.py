@@ -143,7 +143,7 @@ def run_single(
     lifespan = Lifespan(app, config)
     lifespan_task = asyncio.ensure_future(lifespan.handle_lifespan())
 
-    loop.run_until_complete(lifespan.wait_for_startup())
+    loop.create_task(lifespan.wait_for_startup())
 
     ssl_context = config.create_ssl_context()
 
@@ -165,7 +165,8 @@ def run_single(
             lambda: Server(app, loop, config), host=config.host, port=config.port, ssl=ssl_context,
             reuse_port=is_child,
         )
-    server = loop.run_until_complete(create_server)
+    server = loop.create_task(create_server)
+    return
 
     if platform.system() == 'Windows':
         loop.create_task(_windows_signal_support())
